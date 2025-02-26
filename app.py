@@ -13,14 +13,12 @@ model = tf.keras.models.load_model(MODEL_PATH)
 
 # Define class labels
 class_labels = {
-    '10_new' : "You have 10 rupees note",
-    '20_new' :"You have 20 rupees note",
-    '50_new' :"You have 50 rupees note",
-    '100_new' :"You have 100 rupees note",
-    '200_new' :"You have 200 rupees note",
-    '500_new' :"You have 500 rupees note"
-    
-    
+    '10_new': "You have 10 rupees note",
+    '20_new': "You have 20 rupees note",
+    '50_new': "You have 50 rupees note",
+    '100_new': "You have 100 rupees note",
+    '200_new': "You have 200 rupees note",
+    '500_new': "You have 500 rupees note"
 }
 
 def preprocess_image(img):
@@ -47,9 +45,19 @@ def speak(text):
 st.title("Currency Note Classification for the Visually Impaired")
 st.write("Upload an image of a currency note, or take a picture with your camera. The app will predict its class and announce it.")
 
+# Play a startup voice command once
+if "voice_played" not in st.session_state:
+    voice_command_audio = speak("Capture the image of currency")
+    audio_file = open(voice_command_audio, 'rb')
+    st.audio(audio_file, format="audio/mp3", autoplay=True)
+    st.session_state.voice_played = True
+    # Remove the temporary file after playing
+    os.remove(voice_command_audio)
+
 # Option to upload a file or use the camera
 uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "jpeg", "png"])
 camera_input = st.camera_input("Take a picture")
+
 # Check if an image is uploaded or captured from the camera
 if uploaded_file is not None:
     image_data = Image.open(uploaded_file)
@@ -64,12 +72,12 @@ if image_data is not None:
     predicted_class = predict_class(image_data)
     st.write(f"**Predicted Class:** {predicted_class}")
     
-    # Generate speech and get path
+    # Generate speech for the predicted class and get path
     audio_path = speak(predicted_class)
     
     # Play audio automatically after classification
     audio_file = open(audio_path, 'rb')
-    st.audio(audio_file, format="audio/mp3", autoplay=True)  # Autoplay set to True
+    st.audio(audio_file, format="audio/mp3", autoplay=True)
     
     # Clean up temporary file after use
     os.remove(audio_path)
