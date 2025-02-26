@@ -1,0 +1,6 @@
+streamlit
+numpy<2
+tensorflow-cpu
+pillow
+pyttsx3
+gtts
