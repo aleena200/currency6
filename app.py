@@ -47,7 +47,7 @@ st.write("Upload an image of a currency note, or take a picture with your camera
 
 # Play a startup voice command once
 if "voice_played" not in st.session_state:
-    voice_command_audio = speak("Capture the image of currency")
+    voice_command_audio = speak("Capture the image of currency or upload the image of currency")
     audio_file = open(voice_command_audio, 'rb')
     st.audio(audio_file, format="audio/mp3", autoplay=True)
     st.session_state.voice_played = True
