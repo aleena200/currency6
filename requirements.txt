@@ -5,4 +5,4 @@ pillow
 pyttsx3
 gtts
 opencv-python-headless
-
+ultralytics
