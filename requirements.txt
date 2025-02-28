@@ -4,3 +4,5 @@ tensorflow-cpu
 pillow
 pyttsx3
 gtts
+opencv-python-headless
+
