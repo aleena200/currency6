@@ -37,7 +37,7 @@ def predict_class(img):
     detected_labels = []
     for r in results:
         for box in r.boxes:
-            cls = int(box.cls[0])  # Class index
+            cls = int(box.cls.item())  # Ensure correct class index retrieval
             detected_labels.append(class_labels.get(cls, "Unknown currency"))
 
     return detected_labels if detected_labels else ["No currency detected"]
