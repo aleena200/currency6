@@ -4,7 +4,6 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 from PIL import Image
 from gtts import gTTS  # Google Text-to-Speech
-import pyttsx3  # Offline text-to-speech
 import tempfile
 import os
 
@@ -36,21 +35,11 @@ def predict_class(img):
     return class_labels[predicted_label]
 
 def speak(text):
-    """Convert text to speech, with error handling for gTTS."""
-    try:
-        tts = gTTS(text=text, lang='en')  # Generate speech
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")  # Create temp file
-        tts.save(temp_file.name)  # Save speech
-        return temp_file.name  # Return path to speech file
-    except Exception as e:
-        st.error(f"Text-to-speech error: {e}")  # Show error in UI
-        return None  # Return None if TTS fails
-
-def speak_offline(text):
-    """Offline text-to-speech using pyttsx3."""
-    engine = pyttsx3.init()
-    engine.say(text)
-    engine.runAndWait()
+    """Convert text to speech and return audio file path."""
+    tts = gTTS(text=text, lang='en')  # Generate speech
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")  # Create temp file
+    tts.save(temp_file.name)  # Save speech
+    return temp_file.name  # Return path to speech file
 
 # Streamlit UI
 st.title("Currency Note Classification for the Visually Impaired")
@@ -59,14 +48,11 @@ st.write("Upload an image of a currency note, or take a picture with your camera
 # Play a startup voice command once
 if "voice_played" not in st.session_state:
     voice_command_audio = speak("Capture the image of currency or upload the image of currency")
-    
-    if voice_command_audio:
-        audio_file = open(voice_command_audio, 'rb')
-        st.audio(audio_file, format="audio/mp3", autoplay=True)
-    else:
-        speak_offline("Capture the image of currency or upload the image of currency")  # Offline fallback
-    
+    audio_file = open(voice_command_audio, 'rb')
+    st.audio(audio_file, format="audio/mp3", autoplay=True)
     st.session_state.voice_played = True
+    # Remove the temporary file after playing
+    os.remove(voice_command_audio)
 
 # Option to upload a file or use the camera
 uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "jpeg", "png"])
@@ -86,12 +72,12 @@ if image_data is not None:
     predicted_class = predict_class(image_data)
     st.write(f"**Predicted Class:** {predicted_class}")
     
-    # Generate speech for the predicted class
+    # Generate speech for the predicted class and get path
     audio_path = speak(predicted_class)
     
-    if audio_path:
-        # Play audio automatically after classification
-        audio_file = open(audio_path, 'rb')
-        st.audio(audio_file, format="audio/mp3", autoplay=True)
-    else:
-        speak_offline(predicted_class)  # Offline fallback if gTTS fails
+    # Play audio automatically after classification
+    audio_file = open(audio_path, 'rb')
+    st.audio(audio_file, format="audio/mp3", autoplay=True)
+    
+    # Clean up temporary file after use
+    os.remove(audio_path)
